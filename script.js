@@ -1,120 +1,100 @@
-const apiUrl = 'http://cse204.work/todo-api/';
-const apiKey = 'cb1a13-9e96f7-bd95e1-7e07ab-beff4a';
+const API_KEY = 'cb1a13-9e96f7-bd95e1-7e07ab-beff4a';
+const API_BASE_URL = 'https://cse204.work/todos';
 
-window.onload = () => {
-    const form = document.querySelector("#addForm");
-    form.addEventListener("submit", addItem);
-  items.addEventListener("click", handleItemInteraction);
-
-  // Load existing ToDos from the server
-  loadTodos();
+const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': API_KEY
 };
 
+document.addEventListener('DOMContentLoaded', function() {
+    loadTodos();
+
+    document.getElementById('todo-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newTaskInput = document.getElementById('new-task');
+        addTask(newTaskInput.value);
+    });
+});
+
 function loadTodos() {
-  fetch(`${apiUrl}`, {
-    method: 'GET',
-    headers: {
-      'x-api-key': apiKey
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    data.forEach(todo => addTodoToDOM(todo));
-  })
-  .catch(error => console.error('Error loading ToDos:', error));
+    fetch(API_BASE_URL, { headers })
+        .then(response => response.json())
+        .then(todos => displayTodos(todos))
+        .catch(error => console.error('Error fetching todos:', error));
 }
 
-function addItem(e) {
-  e.preventDefault();
-  const newItem = document.getElementById("item").value.trim();
-  if (!newItem) return;
+function displayTodos(todos) {
+    const todoListElement = document.querySelector('.task-box');
+    todoListElement.innerHTML = '';
 
-  const todo = {
-    text: newItem
-  };
+    todos.forEach(todo => {
+        const item = document.createElement('li');
+        
+        const customCheckbox = document.createElement('label');
+        customCheckbox.classList.add('custom-checkbox');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', () => updateTodo(todo.id, checkbox.checked));
+        const checkmark = document.createElement('span');
+        checkmark.classList.add('checkmark');
+        customCheckbox.appendChild(checkbox);
+        customCheckbox.appendChild(checkmark);
 
-  // Send new ToDo to the server
-  fetch(`${apiUrl}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey
-    },
-    body: JSON.stringify(todo)
-  })
-  .then(response => response.json())
-  .then(todo => {
-    addTodoToDOM(todo);
-    document.getElementById("item").value = ""; // Clear input field
-  })
-  .catch(error => console.error('Error adding ToDo:', error));
+        const text = document.createElement('span');
+        text.textContent = todo.text;
+        if (todo.completed) {
+            text.classList.add('completed');
+        }
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('delete-btn');
+        deleteButton.addEventListener('click', () => deleteTodo(todo.id));
+
+        item.appendChild(customCheckbox); 
+        item.appendChild(text);
+        item.appendChild(deleteButton);
+        todoListElement.appendChild(item);
+    });
 }
 
-function addTodoToDOM(todo) {
-  const li = document.createElement("li");
-  li.className = "list-group-item";
-  li.setAttribute('data-id', todo.id);
+function addTask(taskText) {
+    if (!taskText.trim()) return;
 
-  const checkBox = document.createElement("input");
-  checkBox.type = "checkbox";
-  checkBox.className = "mr-2";
-  checkBox.checked = todo.completed;
-  checkBox.addEventListener('change', toggleTodoCompletion);
-
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "btn-danger btn btn-sm float-right delete";
-  deleteButton.textContent = "Delete";
-  deleteButton.addEventListener('click', deleteTodo);
-
-  li.appendChild(checkBox);
-  li.appendChild(document.createTextNode(todo.text));
-  li.appendChild(deleteButton);
-
-  items.appendChild(li);
+    fetch(API_BASE_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ text: taskText })
+    })
+    .then(response => response.json())
+    .then(todo => {
+        document.getElementById('new-task').value = ''; 
+        loadTodos();
+    })
+    .catch(error => console.error('Error adding todo:', error));
 }
 
-function handleItemInteraction(e) {
-  if (e.target.className.includes("delete")) {
-    deleteTodo.call(e.target);
-  }
+function updateTodo(id, completed) {
+    fetch(`${API_BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ completed })
+    })
+    .then(response => response.json())
+    .then(updatedTodo => {
+        loadTodos();
+    })
+    .catch(error => console.error('Error updating todo:', error));
 }
 
-function deleteTodo() {
-  const li = this.parentNode;
-  const todoId = li.getAttribute('data-id');
-
-  fetch(`${apiUrl}${todoId}`, {
-    method: 'DELETE',
-    headers: {
-      'x-api-key': apiKey
-    }
-  })
-  .then(() => {
-    li.remove(); // Remove the ToDo item from the DOM
-  })
-  .catch(error => console.error('Error deleting ToDo:', error));
-}
-
-function toggleTodoCompletion() {
-  const li = this.parentNode;
-  const todoId = li.getAttribute('data-id');
-  const completed = this.checked;
-
-  fetch(`${apiUrl}${todoId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey
-    },
-    body: JSON.stringify({ completed })
-  })
-  .then(() => {
-    li.classList.toggle('completed', completed);
-  })
-  .catch(error => console.error('Error updating ToDo:', error));
-}
-
-function toggleButton(ref, btnID) {
-  let submit = document.getElementById(btnID);
-  submit.disabled = ref.value.trim() === "";
+function deleteTodo(id) {
+    fetch(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE',
+        headers
+    })
+    .then(() => {
+        loadTodos(); 
+    })
+    .catch(error => console.error('Error deleting todo:', error));
 }
