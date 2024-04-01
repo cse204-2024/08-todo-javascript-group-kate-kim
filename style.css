@@ -33,11 +33,17 @@ h1 {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+body {
+    font-size: 16px;
+}
+
+/* container */
 .container {
     width: 80%;
     margin: 20px 0;
 }
 
+/* task-write */
 .task-write {
     display: flex;
     width: 100%;
@@ -67,7 +73,7 @@ h1 {
     cursor: pointer;
 }
 
-
+/* task-box */
 .task-box {
     list-style: none;
     padding: 0;
@@ -83,17 +89,19 @@ h1 {
 .task-box li {
     background-color: #efefef;
     margin-bottom: 5px;
-    padding: 20px;
+    padding: 20px; 
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 4px;
+    overflow-wrap: break-word; 
 }
 
 .task-box li span {
     flex-grow: 1;
-    margin-left: 10px; 
-    text-align: left; 
+    margin: 0 10px; 
+    text-align: left;
+    word-break: break-word;
 }
 
 
@@ -105,7 +113,6 @@ h1 {
 .task-box li.dark-gray {
     background-color: #bfbfbf; 
 }
-
 
 /* Delete Button Styling */
 .delete-btn {
@@ -121,3 +128,38 @@ h1 {
     justify-content: center;
 }
 
+/* responsive */
+@media (max-width: 768px) {
+    .content {
+        padding: 10px; 
+        top: 100px; 
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .task-box li {
+        font-size: 13px;
+    }
+
+}
+@media (max-width: 480px) {
+    .content {
+        padding: 10px; 
+    }
+
+    .task-box li span, .delete-btn {
+        margin-top: 10px; 
+    }
+    .task-box li span {
+        margin-left: 0;
+    }
+    body {
+        font-size: 12px;
+    }
+
+    .task-box li {
+        font-size: 13px;
+    }
+}
