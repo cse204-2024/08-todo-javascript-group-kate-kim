@@ -33,22 +33,22 @@ h1 {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.wrapper {
+.container {
     width: 80%;
     margin: 20px 0;
 }
 
-.task-input {
+.task-write {
     display: flex;
     width: 100%;
     margin-bottom: 20px;
 }
 
-.task-input input, .task-input button {
+.task-write input, .task-write button {
     height: 40px;
 }
 
-.task-input input {
+.task-write input {
     flex-grow: 1;
     padding: 0 10px;
     margin-right: 5px;
@@ -57,7 +57,7 @@ h1 {
     text-align: left;
 }
 
-.task-input button {
+.task-write button {
     flex-grow: 0;
     padding: 0 25px;
     border: none;
@@ -67,9 +67,6 @@ h1 {
     cursor: pointer;
 }
 
-.task-input input, .task-input button {
-    height: 50px; 
-}
 
 .task-box {
     list-style: none;
@@ -104,6 +101,11 @@ h1 {
     text-decoration: line-through;
     opacity: 0.3;
 }
+
+.task-box li.dark-gray {
+    background-color: #bfbfbf; 
+}
+
 
 /* Delete Button Styling */
 .delete-btn {
